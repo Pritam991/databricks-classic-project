@@ -1,0 +1,31 @@
+resources:
+  jobs:
+    earthquake_end_to_end_job:
+      name: earthquake_end_to_end_job
+      tasks:
+        - task_key: ingestion_bronze
+          notebook_task:
+            notebook_path: /Workspace/databricks-project-geek/databricks-classic-project/databricks_classic_bundle/src/notebooks/ingestion_bronze
+            base_parameters:
+              catalog_name: project_dev
+            source: WORKSPACE
+        - task_key: bronze_silver_rarthquake
+          depends_on:
+            - task_key: ingestion_bronze
+          pipeline_task:
+            pipeline_id: 24de9699-2f27-4edc-b83a-76ce65059031
+        - task_key: earthquake_dashboard
+          depends_on:
+            - task_key: bronze_silver_rarthquake
+          dashboard_task:
+            subscription:
+              attachment:
+                page_attachment: {}
+            warehouse_id: e1c2f7499650cb77
+            dashboard_id: 01f1dd22bbb01ecc92df1b40ef8d76d2
+      queue:
+        enabled: true
+      parameters:
+        - name: catalog_name
+          default: project_dev
+      performance_target: PERFORMANCE_OPTIMIZED
